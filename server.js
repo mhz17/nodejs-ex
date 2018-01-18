@@ -13,6 +13,111 @@ app.use(morgan('combined'))
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
     ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0'
 
+var jsonData = {
+      results: [
+        {
+          date: "",
+          league: "",
+          link: "",
+          homeTeam: "",
+          awayTeam: "",
+          homeScore: "",
+          awayScore: "",
+          homePossessions: "",
+          awayPossessions: "",
+          homeShots: "",
+          awayShots: "",
+          homeShotsOnTarget: "",
+          awayShotsOnTarget: "",
+          homeCorners: "",
+          awayCorners: "",
+          homeFouls: "",
+          awayFouls: "",
+          referee: "",
+          attendance: ""
+        }
+      ]
+    };
+
+    function clearVariable(){
+      return {
+        results: [
+          {
+            date: "",
+            league: "",
+            link: "",
+            homeTeam: "",
+            awayTeam: "",
+            homeScore: "",
+            awayScore: "",
+            homePossessions: "",
+            awayPossessions: "",
+            homeShots: "",
+            awayShots: "",
+            homeShotsOnTarget: "",
+            awayShotsOnTarget: "",
+            homeCorners: "",
+            awayCorners: "",
+            homeFouls: "",
+            awayFouls: "",
+            referee: "",
+            attendance: ""
+          }
+        ]
+      };
+    }
+
+function getMatchDetails($) {
+
+          var urlStats;
+          var Matchdate;
+          var League;
+          var Home;
+          var Away;
+          var HomeScore;
+          var AwayScore;
+    
+          $('.sp-c-date-picker-timeline__item--selected').filter(function(){
+            var data = $(this);
+            Matchdate = data.children().first().attr('href');
+            Matchdate = Matchdate.replace('/sport/football/scores-fixtures/', '');
+          });
+    
+    
+          $('.sp-c-fixture__block-link').filter(function () {
+            var data = $(this);
+            urlStats = 'http://www.bbc.co.uk' + data.attr('href');
+    
+            if (!data.attr('data-reactid').includes('National League') && !data.attr('data-reactid').includes('Scottish')
+                && !data.attr('data-reactid').includes('Italian') && !data.attr('data-reactid').includes('Spanish')) {
+    
+              League = data.parent().parent().parent().children().first().text();
+              Home = data.children().first().children().first().children().first().children().first().children().first().children().first().attr('title');
+              Away = data.children().first().children().first().children().last().children().first().children().first().children().first().attr('title');
+              HomeScore = data.children().first().children().first().children().first().children().last().children().text();
+              AwayScore = data.children().first().children().first().children().last().children().last().children().text();
+    
+              if (jsonData.results.length == 1 && jsonData.results[0].link == "") {
+                jsonData.results[0].date = Matchdate;
+                jsonData.results[0].league = League;
+                jsonData.results[0].link = urlStats;
+                jsonData.results[0].homeTeam = Home;
+                jsonData.results[0].awayTeam = Away;
+                jsonData.results[0].homeScore = HomeScore;
+                jsonData.results[0].awayScore = AwayScore;
+              }
+              else {
+                jsonData.results.push(
+                  { date: Matchdate, league: League, link: urlStats, homeTeam: Home, awayTeam: Away, homeScore: HomeScore, awayScore: AwayScore }
+                );
+              }
+    
+            }
+    
+          });
+ 
+    }
+
 function myFunc(req, res, next){
 
     var c = new Crawler({
@@ -27,15 +132,8 @@ function myFunc(req, res, next){
                 return res.send('Error occured: ' + error)
             }else{
                 var $ = response.$;
-                var Matchdate;
-
-                $('.sp-c-date-picker-timeline__item--selected').filter(function () {
-                    var data = $(this);
-                    Matchdate = data.children().first().attr('href');
-                    Matchdate = Matchdate.replace('/sport/football/scores-fixtures/', '');
-                  });
-
-                return res.send('Response here: ' + Matchdate);
+                getMatchDetails($);
+                return res.send(JSON.stringify(jsonData));
             }
         }
     });
