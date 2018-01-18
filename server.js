@@ -6,6 +6,7 @@ var express = require('express'),
     cheerio = require('cheerio');
     json2csv = require('json2csv');
     fs = require('fs');
+    csv = require('download-csv');
 
 Object.assign=require('object-assign')
 
@@ -120,11 +121,6 @@ function getMatchDetails($) {
  
     }
 
-function getUserHome() {
-      var directory = process.env.HOME || process.env.USERPROFILE;
-      return directory + '\\Desktop'
-}
-
 function myFunc(req, res, next){
 
     var c = new Crawler({
@@ -143,16 +139,17 @@ function myFunc(req, res, next){
 
                 var fields = ['date', 'league', 'link', 'homeTeam', 'awayTeam', 'homeScore', 'awayScore'];
                 var result = json2csv({ data: jsonData.results, fields: fields });
+                var filelocation = __dirname + '\\output\\stats.csv';
 
-                fs.writeFile(getUserHome() + '\\stats.csv', result, 'utf8', function (err) {
+                fs.writeFile(filelocation, result, 'utf8', function (err) {
                   if (err) {
                     console.log('Some error occured - file either not saved or corrupted file saved.');
+                    return res.send(err)
                   } else{
                     console.log('It\'s saved!');
+                    return res.download(filelocation, 'stats.csv')
                   }
                 });
-
-                return res.send('File Saved: ' + getUserHome() + '\\stats.csv');
             }
         }
     });
