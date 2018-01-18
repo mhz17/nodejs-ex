@@ -7,6 +7,11 @@ chai.use(chaiHTTP);
 
 reqServer = process.env.HTTP_TEST_SERVER || server
 
+reqServer.get('/apitest', (req, res) => {
+    res.send('Incorrect Request');
+  });
+
+
 describe('Basic routes tests', function() {
 
     it('GET to / should return 200', function(done){
