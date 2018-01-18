@@ -4,6 +4,8 @@ var express = require('express'),
     morgan  = require('morgan');
     Crawler = require("crawler");
     cheerio = require('cheerio');
+    json2csv = require('json2csv');
+    fs = require('fs');
 
 Object.assign=require('object-assign')
 
@@ -16,25 +18,25 @@ var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
 var jsonData = {
       results: [
         {
-          date: "",
-          league: "",
-          link: "",
-          homeTeam: "",
-          awayTeam: "",
-          homeScore: "",
-          awayScore: "",
-          homePossessions: "",
-          awayPossessions: "",
-          homeShots: "",
-          awayShots: "",
-          homeShotsOnTarget: "",
-          awayShotsOnTarget: "",
-          homeCorners: "",
-          awayCorners: "",
-          homeFouls: "",
-          awayFouls: "",
-          referee: "",
-          attendance: ""
+          "date": "",
+          "league": "",
+          "link": "",
+          "homeTeam": "",
+          "awayTeam": "",
+          "homeScore": "",
+          "awayScore": "",
+          "homePossessions": "",
+          "awayPossessions": "",
+          "homeShots": "",
+          "awayShots": "",
+          "homeShotsOnTarget": "",
+          "awayShotsOnTarget": "",
+          "homeCorners": "",
+          "awayCorners": "",
+          "homeFouls": "",
+          "awayFouls": "",
+          "referee": "",
+          "attendance": ""
         }
       ]
     };
@@ -43,25 +45,25 @@ var jsonData = {
       return {
         results: [
           {
-            date: "",
-            league: "",
-            link: "",
-            homeTeam: "",
-            awayTeam: "",
-            homeScore: "",
-            awayScore: "",
-            homePossessions: "",
-            awayPossessions: "",
-            homeShots: "",
-            awayShots: "",
-            homeShotsOnTarget: "",
-            awayShotsOnTarget: "",
-            homeCorners: "",
-            awayCorners: "",
-            homeFouls: "",
-            awayFouls: "",
-            referee: "",
-            attendance: ""
+            "date": "",
+            "league": "",
+            "link": "",
+            "homeTeam": "",
+            "awayTeam": "",
+            "homeScore": "",
+            "awayScore": "",
+            "homePossessions": "",
+            "awayPossessions": "",
+            "homeShots": "",
+            "awayShots": "",
+            "homeShotsOnTarget": "",
+            "awayShotsOnTarget": "",
+            "homeCorners": "",
+            "awayCorners": "",
+            "homeFouls": "",
+            "awayFouls": "",
+            "referee": "",
+            "attendance": ""
           }
         ]
       };
@@ -108,7 +110,7 @@ function getMatchDetails($) {
               }
               else {
                 jsonData.results.push(
-                  { date: Matchdate, league: League, link: urlStats, homeTeam: Home, awayTeam: Away, homeScore: HomeScore, awayScore: AwayScore }
+                  { "date": Matchdate, "league": League, "link": urlStats, "homeTeam": Home, "awayTeam": Away, "homeScore": HomeScore, "awayScore": AwayScore }
                 );
               }
     
@@ -117,6 +119,11 @@ function getMatchDetails($) {
           });
  
     }
+
+function getUserHome() {
+      var directory = process.env.HOME || process.env.USERPROFILE;
+      return directory + '\\Desktop'
+}
 
 function myFunc(req, res, next){
 
@@ -133,7 +140,19 @@ function myFunc(req, res, next){
             }else{
                 var $ = response.$;
                 getMatchDetails($);
-                return res.send(JSON.stringify(jsonData));
+
+                var fields = ['date', 'league', 'link', 'homeTeam', 'awayTeam', 'homeScore', 'awayScore'];
+                var result = json2csv({ data: jsonData.results, fields: fields });
+
+                fs.writeFile(getUserHome() + '\\stats.csv', result, 'utf8', function (err) {
+                  if (err) {
+                    console.log('Some error occured - file either not saved or corrupted file saved.');
+                  } else{
+                    console.log('It\'s saved!');
+                  }
+                });
+
+                return res.send('File Saved: ' + getUserHome() + '\\stats.csv');
             }
         }
     });
