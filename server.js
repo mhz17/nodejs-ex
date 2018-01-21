@@ -159,7 +159,7 @@ function myFunc(req, res, next){
 app.get('/date:matchdate', myFunc);
 
 app.get('/', (req, res) => {
-  res.send('Incorrect Request');
+  res.sendfile('views/index.html');
 });
 
 // error handling

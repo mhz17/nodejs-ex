@@ -35,5 +35,8 @@
   "bugs": {
     "url": "http://github.com/openshift/nodejs-ex/issues"
   },
-  "homepage": "http://github.com/openshift/nodejs-ex"
+  "homepage": "http://github.com/openshift/nodejs-ex",
+  "devDependencies": {
+    "ws": "3.3.2"
+  }
 }
