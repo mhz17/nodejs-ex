@@ -41,7 +41,6 @@
   },
   "homepage": "http://github.com/openshift/nodejs-ex",
   "devDependencies": {
-    "@angular/cli": "^1.6.5",
     "ws": "3.3.2"
   }
 }
