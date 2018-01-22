@@ -108,7 +108,8 @@ app.get('/date:matchdate', (req, res) => {
         var $ = response.$;
         var a = checkIfPageExists($);
         if (a != null) {
-          res.send(a);
+          var err = new Error(a);
+          res.send(err.message);
         } else {
           getMatchDetails($);
         }
