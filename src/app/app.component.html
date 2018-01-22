@@ -1,0 +1,45 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div class="container">
+
+    <h2>
+      <i class="fa fa-futbol-o"></i> {{title}}
+    </h2>
+    <div class="row rowWithPadding">
+     <div class="col-md-1 datelabel">Date:</div>
+      <div class="col-md-2 calendar">
+        <p-calendar [(ngModel)]="dt" item-width="100" class="calendarcontrol" ng-value="" dateFormat="yy-mm-dd" (onSelect)="removeValidation($event)"></p-calendar>
+      </div>
+      <div class="col-md-1">
+        <button type="button" class="btn btn-success btnGetData" (click)="getAllData()" [class.disabled]="dataLoading">Get Data
+          <i class="fa fa-refresh fa-spin" *ngIf="dataLoading"></i>
+        </button>
+      </div>
+    </div>
+    <div class="row rowWithPadding">
+      <div class="col-md-12">
+        <div *ngFor="let obj of footballData">
+          <div class="row">
+            <div class="col-sm-2 league">{{obj.league}}</div>
+            <div class="col-sm-2 team"><div class="truncatetext">{{obj.homeTeam}}</div></div>
+            <div class="col-sm-1 score">
+              <b>{{obj.homeScore}}:{{obj.awayScore}}</b>
+            </div>
+            <div class="col-sm-2 team"><div class="truncatetext">{{obj.awayTeam}}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{errorMessage}}
+        </div>
+      </div>
+    </div>
+    <div class="row rowWithPadding">
+      <div class="col-md-2" *ngIf="showExportButton()">
+        <button type="button" class="btn btn-warning" (click)="exportData()">
+          <i class="fa fa-file-o"></i> Export to CSV</button>
+      </div>
+    </div>
+  
+  </div>
