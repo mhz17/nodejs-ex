@@ -2,13 +2,14 @@
 var express = require('express'),
   app = express(),
   morgan = require('morgan');
-Crawler = require("crawler");
-cheerio = require('cheerio');
-json2csv = require('json2csv');
-fs = require('fs');
-csv = require('download-csv');
-url = require('url');
-path = require('path');
+  Crawler = require("crawler");
+  cheerio = require('cheerio');
+  json2csv = require('json2csv');
+  fs = require('fs');
+  csv = require('download-csv');
+  url = require('url');
+  path = require('path');
+  cors = require('cors')
 
 Object.assign = require('object-assign')
 
@@ -86,8 +87,24 @@ function clearVariable() {
   };
 }
 
+var whitelist = [
+  'https://football-stats-56774.firebaseapp.com/', 
+  'http://127.0.0.1:4200', 
+  'http://127.0.0.1:8080'
+]
+
+var corsOptionsDelegate = function (req, callback) {
+  var corsOptions;
+  if (whitelist.indexOf(req.header('Origin')) !== -1) {
+    corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
+  }else{
+    corsOptions = { origin: false } // disable CORS for this request
+  }
+  callback(null, corsOptions) // callback expects two parameters: error and options
+}
+
 // Get all posts
-app.get('/date:matchdate', (req, res) => {
+app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
 
   console.log('URL: ' + 'http://www.bbc.co.uk/sport/football/scores-fixtures/' + req.params.matchdate.replace(':', ''));
 
