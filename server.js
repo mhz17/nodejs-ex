@@ -118,6 +118,7 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
       if (error) {
 
         console.log('Error retrieving main data: ' + error);
+        res.send(error.message);
 
       } else {
 
@@ -145,6 +146,7 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
       if (error) {
 
         console.log('Error retrieving stats: ' + error);
+        res.send(error.message);
 
       } else {
         console.log('Stats started: ' + response.request.uri.href);
