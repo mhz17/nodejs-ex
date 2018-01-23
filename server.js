@@ -2,14 +2,14 @@
 var express = require('express'),
   app = express(),
   morgan = require('morgan');
-  Crawler = require("crawler");
-  cheerio = require('cheerio');
-  json2csv = require('json2csv');
-  fs = require('fs');
-  csv = require('download-csv');
-  url = require('url');
-  path = require('path');
-  cors = require('cors')
+Crawler = require("crawler");
+cheerio = require('cheerio');
+json2csv = require('json2csv');
+fs = require('fs');
+csv = require('download-csv');
+url = require('url');
+path = require('path');
+cors = require('cors')
 
 Object.assign = require('object-assign')
 
@@ -88,8 +88,8 @@ function clearVariable() {
 }
 
 var whitelist = [
-  'https://football-stats-56774.firebaseapp.com/', 
-  'http://localhost:4200', 
+  'https://football-stats-56774.firebaseapp.com/',
+  'http://localhost:4200',
   'http://localhost:8080'
 ]
 
@@ -97,7 +97,7 @@ var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   if (whitelist.indexOf(req.header('Origin')) !== -1) {
     corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
-  }else{
+  } else {
     corsOptions = { origin: false } // disable CORS for this request
   }
   callback(null, corsOptions) // callback expects two parameters: error and options
@@ -106,7 +106,7 @@ var corsOptionsDelegate = function (req, callback) {
 // Get all posts
 app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
 
-  console.log('URL: ' + 'http://www.bbc.co.uk/sport/football/scores-fixtures/' + req.params.matchdate.replace(':', ''));
+  jsonData = clearVariable();
 
   var filelocation = path.resolve('output') + '\\stats.csv';
   fs.truncate(filelocation, 0, function () { console.log('File has been truncated') })
@@ -126,6 +126,7 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
         var $ = response.$;
         var a = checkIfPageExists($);
         if (a != null) {
+          console.log('Throw error');
           var err = new Error(a);
           res.send(err.message);
         } else {
@@ -164,10 +165,15 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
   c.queue(['http://www.bbc.co.uk/sport/football/scores-fixtures/' + req.params.matchdate.replace(':', '')]);
 
   c.on('drain', function () {
-    // console.log('Main queue compeleted');
-    for (var v in jsonData.results) {
-      if (jsonData.results[v].link.length > 0) {
-        c_stats.queue([jsonData.results[v].link]);
+    console.log('Main queue compeleted');
+
+    if (jsonData.results.length == 1 && jsonData.results[0].link == "") {
+      res.send('No Results for selected date');
+    } else {
+      for (var v in jsonData.results) {
+        if (jsonData.results[v].link.length > 0) {
+          c_stats.queue([jsonData.results[v].link]);
+        }
       }
     }
 
@@ -205,10 +211,11 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
       if (err) {
         console.log('Some error occured - file either not saved or corrupted file saved: ' + err);
       } else {
-        // console.log('File has been saved');
+        console.log('Output.json file has been updated');
       }
     });
 
+    console.log('Results are sent: ' + jsonData.results);
     res.send(jsonData.results);
 
   })
@@ -228,6 +235,8 @@ function checkIfPageExists($) {
 
 function getMatchDetails($) {
 
+  console.log('Get Match Details Method started')
+
   var urlStats;
   var Matchdate;
   var League;
@@ -236,19 +245,21 @@ function getMatchDetails($) {
   var HomeScore;
   var AwayScore;
 
+  console.log('Start Query Match Date');
   $('.sp-c-date-picker-timeline__item--selected').filter(function () {
     var data = $(this);
     Matchdate = data.children().first().attr('href');
     Matchdate = Matchdate.replace('/sport/football/scores-fixtures/', '');
+    console.log('Match date selected: ' + Matchdate);
   });
 
-
+  console.log('Start Query Match Details');
   $('.sp-c-fixture__block-link').filter(function () {
     var data = $(this);
     urlStats = 'http://www.bbc.co.uk' + data.attr('href');
 
     if (!data.attr('data-reactid').includes('National League') && !data.attr('data-reactid').includes('Scottish')
-      && !data.attr('data-reactid').includes('Italian') && !data.attr('data-reactid').includes('Spanish') && 
+      && !data.attr('data-reactid').includes('Italian') && !data.attr('data-reactid').includes('Spanish') &&
       !data.attr('data-reactid').includes('German') && !data.attr('data-reactid').includes('French')) {
 
       League = data.parent().parent().parent().children().first().text();
@@ -272,6 +283,7 @@ function getMatchDetails($) {
         );
       }
 
+
     }
 
   });
@@ -279,6 +291,8 @@ function getMatchDetails($) {
 }
 
 function getMatchStats($, url) {
+
+  console.log('Get Match Stats Method started')
 
   var PossessionsHome;
   var PossessionsAway;
@@ -293,6 +307,7 @@ function getMatchStats($, url) {
   var refereeName;
   var attendanceCount;
 
+  console.log('Start Query Match Stats Details based on link: ' + url);
   $('.sp-c-football-match-stats').filter(function () {
     var data = $(this);
 
@@ -309,6 +324,7 @@ function getMatchStats($, url) {
 
   });
 
+  console.log('Start Query Match Referee and attendance');
   $('#tab-0').filter(function () {
     var data = $(this);
     refereeName = data.children().first().next().children().first().children().last().children().first().children().first().children().last().text();
