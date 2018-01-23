@@ -249,7 +249,7 @@ function getMatchDetails($) {
 
     if (!data.attr('data-reactid').includes('National League') && !data.attr('data-reactid').includes('Scottish')
       && !data.attr('data-reactid').includes('Italian') && !data.attr('data-reactid').includes('Spanish') && 
-      !data.attr('data-reactid').includes('German')) {
+      !data.attr('data-reactid').includes('German') && !data.attr('data-reactid').includes('French')) {
 
       League = data.parent().parent().parent().children().first().text();
       Home = data.children().first().children().first().children().first().children().first().children().first().children().first().attr('title');
