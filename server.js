@@ -89,8 +89,8 @@ function clearVariable() {
 
 var whitelist = [
   'https://football-stats-56774.firebaseapp.com/', 
-  'http://127.0.0.1:4200', 
-  'http://127.0.0.1:8080'
+  'http://localhost:4200', 
+  'http://localhost:8080'
 ]
 
 var corsOptionsDelegate = function (req, callback) {
