@@ -109,6 +109,8 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
   jsonData = clearVariable();
 
   var filelocation = path.resolve('output') + '\\stats.csv';
+  var errorReported = '';
+
   fs.truncate(filelocation, 0, function () { console.log('File has been truncated') })
 
   c = new Crawler({
@@ -126,9 +128,12 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
         var $ = response.$;
         var a = checkIfPageExists($);
         if (a != null) {
+
           console.log('Throw error');
           var err = new Error(a);
-          res.send(err.message);
+          errorReported = err.message;
+          
+
         } else {
           getMatchDetails($);
         }
@@ -168,7 +173,12 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
     console.log('Main queue compeleted');
 
     if (jsonData.results.length == 1 && jsonData.results[0].link == "") {
-      res.send('No Results for selected date');
+      if (errorReported != ''){
+        res.send(errorReported);
+      } else {
+        res.send('No Results for selected date');
+      }
+      
     } else {
       for (var v in jsonData.results) {
         if (jsonData.results[v].link.length > 0) {
@@ -178,8 +188,6 @@ app.get('/date:matchdate', cors(corsOptionsDelegate), (req, res) => {
     }
 
   });
-
-
 
   c_stats.on('drain', function () {
 
